@@ -33,10 +33,8 @@ class Model(nn.Module):
 
 
 def main(args):
-    current_date = datetime.now()
-
     latest_path = args.input_file # '/home/ubuntu/new_drive/BP/saved_features/features_2023_08_23.pkl'
-    result_path = args.output_file+current_date.strftime('%Y-%m-%d')+".csv"
+    result_path = args.output_file
     
     X, collected_urls  = pkl.load(open(latest_path,'rb'))
     Y = [0 for _ in range(len(X))]
