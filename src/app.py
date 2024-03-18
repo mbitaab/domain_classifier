@@ -4,7 +4,7 @@ from torch import nn
 import pickle as pkl
 import argparse
 import dataconverter
-
+from datetime import datetime
 
 class Model(nn.Module):
     def __init__(self, num_features, num_classes, hidden_sizes):
@@ -33,8 +33,11 @@ class Model(nn.Module):
 
 
 def main(args):
+    current_date = datetime.now()
 
     latest_path = args.input_file # '/home/ubuntu/new_drive/BP/saved_features/features_2023_08_23.pkl'
+    result_path = args.output_file+current_date.strftime('%Y-%m-%d')+".csv"
+    
     X, collected_urls  = pkl.load(open(latest_path,'rb'))
     Y = [0 for _ in range(len(X))]
 
@@ -60,8 +63,6 @@ def main(args):
 
     print('num batches =', len(val_loader))
 
-    result_path = latest_path.replace('.pkl', '.csv').replace('saved_', 'classify_').replace('features_', 'classify_').replace('_features', '_result')
-    print(result_path)
     pred_url_labels = {}
     scam_count = 0
 
@@ -112,6 +113,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Optional app description')
 
     parser.add_argument('--input_file', type=str, help='input pickle files of features', required=True)
+    parser.add_argument('--output_file', type=str, help='output file path', required=True)
 
     args = parser.parse_args()
     main(args)

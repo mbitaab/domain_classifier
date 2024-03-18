@@ -18,4 +18,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Run app.py when the container launches
 # Include default values for required arguments or use environment variables
-CMD ["python", "./src/app.py", "--input_file", "/app/data/output.pkl"]
+CMD ["python", "./src/app.py", "--input_file", "/app/data/features_output.pkl" , "--output_file" ,"/app/data/classify_"]
