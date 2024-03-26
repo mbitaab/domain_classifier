@@ -189,6 +189,5 @@ cython_debug/
 *.msg
 *.pages
 *.rtf
-*.txt
 *.wpd
 *.pt
