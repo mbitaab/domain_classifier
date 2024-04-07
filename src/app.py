@@ -33,7 +33,7 @@ def main(args):
         model_out = model.predict_proba(X)
 
         for probs, pred, label, url in zip( model_out,(model_out[:, 1] >= args.threshold).astype(int), Y, collected_urls ):
-            
+            print(f'probability: {probs}')
             # unify urls
             url = url.replace('https://', '').replace('http://', '')
 
@@ -50,7 +50,7 @@ def main(args):
             # write the results to file
             fout.write('%s,%s,%0.4f,%0.4f\n' %(
                 url, 
-                'legit' if probs[1] < 0.8 or is_white else 'scam', 
+                'legit' if pred==0 or is_white else 'scam', 
                 probs[0],
                 probs[1],
             ))
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--input_file', type=str, help='input pickle files of features', required=True)
     parser.add_argument('--output_file', type=str, help='output file path', required=True)
-    parser.add_argument('--threshold', type=float, help='classifier threshold', required=False, default=0.69)
+    parser.add_argument('--threshold', type=float, help='classifier threshold', required=False, default=0.1184)
 
     args = parser.parse_args()
     main(args)
