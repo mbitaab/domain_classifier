@@ -192,4 +192,5 @@ cython_debug/
 *.wpd
 *.pt
 
+.DS_Store
 assets/
