@@ -33,7 +33,7 @@ def main(args):
         model_out = model.predict_proba(X)
 
         for probs, pred, label, url in zip( model_out,(model_out[:, 1] >= args.threshold).astype(int), Y, collected_urls ):
-            print(f'probability: {probs}')
+            print(f'DOMAIN_CLASSIFIER:{probs[0]},{probs[1]}')
             # unify urls
             url = url.replace('https://', '').replace('http://', '')
 
