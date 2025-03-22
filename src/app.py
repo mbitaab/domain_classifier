@@ -1,9 +1,25 @@
 import numpy as np
 import pickle as pkl
 import argparse
-from datetime import datetime
-import xgboost
 
+
+def normalize_url(url):
+    prefixes = ['https://www.', 'http://www.', 'www.']
+    for prefix in prefixes:
+        if url.startswith(prefix):
+            return url[len(prefix):]
+    return url
+
+def is_domain_whitelisted(domain, whitelist):
+    domain_parts = domain.split('.')
+    if domain in whitelist:
+        return True
+
+    if len(domain_parts) > 1:
+        tld = '.'.join(domain_parts[-2:])
+        if tld in whitelist:
+            return True
+    return False
 
 def main(args):
     latest_path = args.input_file # '/home/ubuntu/new_drive/BP/saved_features/features_2023_08_23.pkl'
@@ -21,9 +37,9 @@ def main(args):
     scam_count = 0
 
     whitelist = []
-    with open('./assets/whitelist.txt', 'r', encoding='utf-8') as fin:
+    with open('/usr/src/app/assets/whitelist.txt', 'r', encoding='utf-8') as fin:
         for line in fin.readlines():
-            whitelist.append(line.strip())
+            whitelist.append(line.strip().lower())
         fin.close()
 
     print('Classification Start ...')
@@ -35,17 +51,13 @@ def main(args):
         for probs, pred, label, url in zip( model_out,(model_out[:, 1] >= args.threshold).astype(int), Y, collected_urls ):
             print(f'DOMAIN_CLASSIFIER:{probs[0]},{probs[1]}')
             # unify urls
-            url = url.replace('https://', '').replace('http://', '')
+            url = normalize_url(url)
 
             if '/' in url:
                 url = url.split('/')[0]
 
             # check the normalized url in whitelist
-            is_white = False
-            for wurl in whitelist:
-                if wurl.lower() in url.lower():
-                    is_white = True
-                    break
+            is_white = is_domain_whitelisted(url.lower(), whitelist)
 
             # write the results to file
             fout.write('%s,%s,%0.4f,%0.4f\n' %(
@@ -54,6 +66,12 @@ def main(args):
                 probs[0],
                 probs[1],
             ))
+            
+            if(pred==0 or is_white):
+                print(f'DOMAIN_PRED_CLASSIFIER:legit')
+            else:
+                print(f'DOMAIN_PRED_CLASSIFIER:scam')
+
             if pred == 1:
                 scam_count += 1
             pred_url_labels[url] = pred.item()
@@ -64,7 +82,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--input_file', type=str, help='input pickle files of features', required=True)
     parser.add_argument('--output_file', type=str, help='output file path', required=True)
-    parser.add_argument('--threshold', type=float, help='classifier threshold', required=False, default=0.1184)
+    parser.add_argument('--threshold', type=float, help='classifier threshold', required=False, default=0.5)
 
     args = parser.parse_args()
     main(args)
